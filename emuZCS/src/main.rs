@@ -8,5 +8,8 @@ fn main() {
 
 
     cpu.reset();
-    println!("Hello, world!");
+
+    loop {
+        cpu.execute();
+    }   
 }
