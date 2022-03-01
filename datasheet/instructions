@@ -13,5 +13,17 @@ Mrr       01 DDD SSS
 MMr       01 DDD 110
 MrM       01 110 SSS
 
-ADD
+ADr       10 000 SSS
+ACr       10 001 SSS
+SUr       10 010 SSS
+SBr       10 011 SSS
+INr       10 100 SSS
+DCr       10 101 SSS
+CPr       10 110 SSS
+
+ANr       00 000 SSS
+ORr       00 001 SSS
+XRr       00 010 SSS
+NTr       00 011 SSS
+
 
