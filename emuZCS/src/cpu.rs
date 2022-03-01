@@ -17,6 +17,10 @@ impl Cpu {
         self.registers.reset();
         self.alu.reset();
     }
+
+    pub fn execute(&mut self) -> bool {
+        true
+    }
 }
 
 struct InstrDecoder {

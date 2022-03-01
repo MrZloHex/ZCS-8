@@ -1,0 +1,17 @@
+DDD or SSS
+A 111
+B 000
+C 001
+D 010
+E 011
+H 100
+L 101
+
+MEM 110
+
+Mrr       01 DDD SSS
+MMr       01 DDD 110
+MrM       01 110 SSS
+
+ADD
+

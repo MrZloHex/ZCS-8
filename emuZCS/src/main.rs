@@ -10,6 +10,7 @@ fn main() {
     cpu.reset();
 
     loop {
-        cpu.execute();
+        let hlt = cpu.execute();
+        if hlt { break; }
     }   
 }
