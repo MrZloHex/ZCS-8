@@ -5,7 +5,7 @@ C   010
 D   011
 H   100
 L   101
-S   110
+SP  110
 
 CC 
 ZERO   00
@@ -14,33 +14,35 @@ PARITY 10
 CARRY  11
 
 
-Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)
-MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)
-MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)
-MIr       00 SSS 111    Load immediate value to REG(S)
+Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)                reg1 = reg2
+MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)              reg  = [HL]
+MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)             [HL] = reg
+MIr       00 SSS 111    Load immediate value to REG(S)                  reg  = imm8
 
-ADr       10 SSS 000    Add REG(S) to REG[A]
-ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]
-SUr       10 SSS 010    Substract REG(S) from REG[A]
-SBr       10 SSS 011    Substract REG(S) from REG[A] with FLAG[C]
-INr       10 SSS 100    Increment REG(S)
-DCr       10 SSS 101    Decrement REG(S)
-CPr       10 SSS 110    Compare REG(S) with REG[A]
+ADr       10 SSS 000    Add REG(S) to REG[A]                            acum = acum + reg
+ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]               acum = acum + reg + c
+SUr       10 SSS 010    Substract REG(S) from REG[A]                    acum = acum - reg
+SBr       10 SSS 011    Substract REG(S) from REG[A] with FLAG[C]       acum = acum - reg - c
+INr       10 SSS 100    Increment REG(S)                                acum = reg + 1
+DCr       10 SSS 101    Decrement REG(S)                                acum = reg - 1
+CPr       10 SSS 110    Compare REG(S) with REG[A]                      c,z,p,s = acum - reg 
 
-ANr       00 SSS 001    And REG(S) with REG[A]
-ORr       00 SSS 010    Or REG(S) with REG[A]
-NRr       00 SSS 011    Nor REG(S) with REG[A]
-XRr       00 SSS 100    Xor REG(S) with REG[A]
-NTr       00 SSS 101    Not REG(S)
+ANr       00 SSS 001    And REG(S) with REG[A]                          acum = acum & reg
+ORr       00 SSS 010    Or REG(S) with REG[A]                           acum = acum v reg
+NRr       00 SSS 011    Nor REG(S) with REG[A]                          acum ~= acum v reg
+XRr       00 SSS 100    Xor REG(S) with REG[A]                          acum = acum ^ reg
+NTr       00 SSS 101    Not REG(S)                                      acum ~= reg
 
-JMP       11 001 111    Jump unconditionaly
-JMf       11 000 0CC    Jump if FLAG(f) is SET
-JNf       11 000 1CC    Jump if FLAG(f) is RESET
+JMP       11 001 111    Jump unconditionaly                             PC   = HL
+JMf       11 000 0CC    Jump if FLAG(f) is SET                          PC   = HL if flag == 1 else NOP
+JNf       11 000 1CC    Jump if FLAG(f) is RESET                        PC   = HL if flag == 0 else NOP
 
-INP       11 100 000    Read value from BUS to REG[A]
-OUT       11 100 111    Write value to BUS from REG[a]
+INP       11 100 000    Read value from BUS to REG[A]           ?       acum = PORT[HL]
+OUT       11 100 111    Write value to BUS from REG[a]          ?       PORT[HL] = acum
+STR       00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
+LOD       11 110 DDD    Load value to REG(D) from MEM[SP]               reg  = [SP]
 
-HLT       11 111 111    Halt proccessor
-RST       11 111 000    Reset proccessor
+HLT       11 111 111    Halt proccessor                                 
+RST       11 111 000    Reset proccessor                        ?
 NOP       00 000 000    Do nothing
 
