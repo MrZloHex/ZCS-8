@@ -1,0 +1,46 @@
+DDD or SSS
+A   000
+B   001
+C   010
+D   011
+H   100
+L   101
+S   110
+
+CC 
+ZERO   00
+SIGN   01
+PARITY 10
+CARRY  11
+
+
+Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)
+MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)
+MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)
+MIr       00 SSS 111    Load immediate value to REG(S)
+
+ADr       10 SSS 000    Add REG(S) to REG[A]
+ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]
+SUr       10 SSS 010    Substract REG(S) from REG[A]
+SBr       10 SSS 011    Substract REG(S) from REG[A] with FLAG[C]
+INr       10 SSS 100    Increment REG(S)
+DCr       10 SSS 101    Decrement REG(S)
+CPr       10 SSS 110    Compare REG(S) with REG[A]
+
+ANr       00 SSS 001    And REG(S) with REG[A]
+ORr       00 SSS 010    Or REG(S) with REG[A]
+NRr       00 SSS 011    Nor REG(S) with REG[A]
+XRr       00 SSS 100    Xor REG(S) with REG[A]
+NTr       00 SSS 101    Not REG(S)
+
+JMP       11 001 111    Jump unconditionaly
+JMf       11 000 0CC    Jump if FLAG(f) is SET
+JNf       11 000 1CC    Jump if FLAG(f) is RESET
+
+INP       11 100 000    Read value from BUS to REG[A]
+OUT       11 100 111    Write value to BUS from REG[a]
+
+HLT       11 111 111    Halt proccessor
+RST       11 111 000    Reset proccessor
+NOP       00 000 000    Do nothing
+
