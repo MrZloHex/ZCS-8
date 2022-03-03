@@ -3,9 +3,9 @@ A   000
 B   001
 C   010
 D   011
-H   100
-L   101
-SP  110
+E   100
+H   101
+L   110
 
 CC 
 ZERO   00
@@ -18,6 +18,7 @@ Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)                reg1 = r
 MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)              reg  = [HL]
 MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)             [HL] = reg
 MIr       00 SSS 111    Load immediate value to REG(S)                  reg  = imm8
+LDS       00 111 101							SP   = HL
 
 ADr       10 SSS 000    Add REG(S) to REG[A]                            acum = acum + reg
 ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]               acum = acum + reg + c
@@ -29,9 +30,8 @@ CPr       10 SSS 110    Compare REG(S) with REG[A]                      c,z,p,s 
 
 ANr       00 SSS 001    And REG(S) with REG[A]                          acum = acum & reg
 ORr       00 SSS 010    Or REG(S) with REG[A]                           acum = acum v reg
-NRr       00 SSS 011    Nor REG(S) with REG[A]                          acum ~= acum v reg
-XRr       00 SSS 100    Xor REG(S) with REG[A]                          acum = acum ^ reg
-NTr       00 SSS 101    Not REG(S)                                      acum ~= reg
+XRr       00 SSS 011    Xor REG(S) with REG[A]                          acum = acum ^ reg
+NTr       00 SSS 100    Not REG(S)                                      acum ~= reg
 
 JMP       11 001 111    Jump unconditionaly                             PC   = HL
 JMf       11 000 0CC    Jump if FLAG(f) is SET                          PC   = HL if flag == 1 else NOP
