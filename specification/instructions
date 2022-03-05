@@ -18,7 +18,10 @@ Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)                reg1 = r
 MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)              reg  = [HL]
 MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)             [HL] = reg
 MIr       00 SSS 111    Load immediate value to REG(S)                  reg  = imm8
-LDS       00 111 101							SP   = HL
+
+MSP       00 111 101							                        SP   = HL
+SPr      00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
+rSP       11 110 DDD    Load value to REG(D) from MEM[SP]               reg  = [SP]
 
 ADr       10 SSS 000    Add REG(S) to REG[A]                            acum = acum + reg
 ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]               acum = acum + reg + c
@@ -39,10 +42,40 @@ JNf       11 000 1CC    Jump if FLAG(f) is RESET                        PC   = H
 
 INP       11 100 000    Read value from BUS to REG[A]           ?       acum = PORT[HL]
 OUT       11 100 111    Write value to BUS from REG[a]          ?       PORT[HL] = acum
-STR       00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
-LOD       11 110 DDD    Load value to REG(D) from MEM[SP]               reg  = [SP]
 
 HLT       11 111 111    Halt proccessor                                 
-RST       11 111 000    Reset proccessor                        ?
-NOP       00 000 000    Do nothing
+
+
+Updated instruction set:
+
+HLT	11 111 111
+
+Mrr	01 SSS DDD
+MMr	01 111 DDD
+MrM	01 SSS 111
+MIr	00 000 DDD
+
+LSP	00 111 111
+MrS	00 SSS 111
+MSr	00 111 DDD
+
+INP	00 001 001
+OUT	00 001 000
+
+JMP	00 100 100
+JSf	11 CC1 100
+JRf	11 CC0 100
+
+ADr	10 SSS 000
+ACr	10 SSS 001
+SUr	10 SSS 010
+SBr	10 SSS 011
+INr	10 SSS 100
+DCr	10 SSS 101
+CPr	10 SSS 110
+
+ANr	11 SSS 000
+ORr	11 SSS 001
+XRr	11 SSS 010
+NTr	11 SSS 011
 
