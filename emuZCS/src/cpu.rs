@@ -1,3 +1,5 @@
+use crate::mem::Mem;
+
 pub struct Cpu {
     registers: Registers,
     decoder: InstrDecoder,
@@ -18,8 +20,20 @@ impl Cpu {
         self.alu.reset();
     }
 
-    pub fn execute(&mut self) -> bool {
-        true
+    pub fn execute(&mut self, rom: &Mem, ram: &mut Mem) -> bool {
+        for cpu_cycle in 0..4 {
+            if cpu_cycle == 0 {
+                let opcode = rom.read(self.registers.program_counter as usize);
+                self.decoder.load_opcode(opcode);
+            } else if cpu_cycle == 1 {
+                
+            } else if cpu_cycle == 2 {
+
+            } else if cpu_cycle == 3 {
+
+            }
+        }
+        false
     }
 }
 
@@ -33,6 +47,10 @@ impl InstrDecoder {
         InstrDecoder {
             reg_instruction: 0
         }
+    }
+
+    pub fn load_opcode(&mut self, opcode: u8) {
+        self.reg_instruction = opcode;
     }
 }
 
@@ -71,15 +89,15 @@ struct Flags {
 }
 
 struct Registers {
-    reg_b: u8,
-    reg_c: u8,
-    reg_d: u8,
-    reg_e: u8,
-    reg_h: u8,
-    reg_l: u8,
+    pub reg_b: u8,
+    pub reg_c: u8,
+    pub reg_d: u8,
+    pub reg_e: u8,
+    pub reg_h: u8,
+    pub reg_l: u8,
 
-    stack_pointer: u16,
-    program_counter: u16
+    pub stack_pointer: u16,
+    pub program_counter: u16
 }
 
 impl Registers {
