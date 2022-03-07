@@ -20,7 +20,7 @@ MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)             [HL] = r
 MIr       00 SSS 111    Load immediate value to REG(S)                  reg  = imm8
 
 MSP       00 111 101							                        SP   = HL
-SPr      00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
+SPr       00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
 rSP       11 110 DDD    Load value to REG(D) from MEM[SP]               reg  = [SP]
 
 ADr       10 SSS 000    Add REG(S) to REG[A]                            acum = acum + reg
