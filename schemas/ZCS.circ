@@ -456,7 +456,7 @@
     <a name="appearance" val="logisim_evolution"/>
     <a name="circuit" val="cpu"/>
     <a name="circuitnamedboxfixedsize" val="true"/>
-    <a name="simulationFrequency" val="1.0"/>
+    <a name="simulationFrequency" val="2048000.0"/>
     <comp lib="0" loc="(1000,210)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="IR_WE"/>
@@ -738,7 +738,7 @@
       <a name="addrWidth" val="15"/>
       <a name="appearance" val="logisim_evolution"/>
       <a name="contents">addr/data: 15 8
-5 80 6 10 0 6 1 3
+5 80 6 10 0 98 1 ae
 3 1 4 1 42 3f 90 7
 60 98 8c 44 38 5 0 6
 e c4 ff
