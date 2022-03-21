@@ -16,8 +16,8 @@ MMr	01 111 DDD	R = [HL]
 MIr	00 000 DDD	R = [PC+1]
 
 LSP	00 111 111	SP = HL
-MrS	00 SSS 111	[SP++] = R
-MSr	00 111 DDD	R = [--SP]
+PUr	00 SSS 111	[SP--] = R
+POr	00 111 DDD	R = [++SP]
 
 JMP	00 100 100	PC = HL
 JSf	11 CC1 100	if F == 1 then PC = HL else NOP
