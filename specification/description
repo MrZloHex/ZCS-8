@@ -1,12 +1,22 @@
-# ZCS-8 
+=============
+=   ZCS-8   =
+=============
 
-## Registers ##
+===  Overview  ===
 
-Accumulator
-B
-C
-D
-H
-L
-SP
-PC
+Computer set contains:
+ - CPU
+ - GPU
+ - ROM
+ - RAM
+ - Monitor
+ - Keyboard
+
+8 bit data bus
+16 bit address bus
+Memory mapped devices
+
+===  CPU  ===
+
+
+
