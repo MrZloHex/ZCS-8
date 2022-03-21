@@ -6,9 +6,9 @@ fn main() {
     let mut ram = mem::Mem::new(usize::pow(2, 15));
     let mut cpu = cpu::Cpu::new();
 
-    let prog: [u8; 1] = [0xFF];
+    let prog: Vec<u8> = vec![0x00, 0x69, 0xFF];
 
-    rom.load(&prog);
+    rom.load(prog);
 
     cpu.reset();
 
@@ -16,4 +16,6 @@ fn main() {
         let hlt = cpu.execute(&rom, &mut ram);
         if hlt { break; }
     }   
+
+    cpu.dump();
 }

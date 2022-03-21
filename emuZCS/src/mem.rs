@@ -5,14 +5,20 @@ pub struct Mem {
 
 impl Mem {
     pub fn new(capacity: usize) -> Mem {
-        Mem {
+        let mut mem = Mem {
             capacity,
-            data: Vec::with_capacity(capacity)
+            data: Vec::new()
+        };
+        for _ in 0..mem.capacity {
+            mem.data.push(0);
         }
+        mem
     }
 
-    pub fn load(&mut self, data: &[u8]) {
-        self.data.clone_from_slice(data)
+    pub fn load(&mut self, data: Vec<u8>) {
+        for i in 0..data.len() {
+            self.data[i] = data[i].clone();
+        }
     }
 
     pub fn read(&self, address: usize) -> u8 {
@@ -24,12 +30,3 @@ impl Mem {
     }
 }
 
-pub struct AddressDecoder {
-
-}
-
-impl AddressDecoder {
-    pub fn read_byte(&self, address: usize) -> u8 {
-        2
-    }
-}
