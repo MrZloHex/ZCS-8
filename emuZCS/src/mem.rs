@@ -28,5 +28,9 @@ impl Mem {
         }
         self.data[address].clone()
     }
+
+    pub fn write(&mut self, address: usize, data: u8) {
+        self.data[address] = data;
+    }
 }
 

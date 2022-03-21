@@ -45,17 +45,24 @@ impl Cpu {
                 return false;
             },
             InstrType::LSP => (),
-            InstrType::MOV {mm, md} => {
-                if !mm {
+            InstrType::MOV {MemMov, MemDir} => {
+                let val = if !MemMov || (MemMov && MemDir) {
                     match self.decoder.get_register(false) {
-                        Register::Accum => self.alu.temp = self.alu.accumulator,
-                        Register::B => self.alu.temp = self.registers.reg_b,
-                        Register::C => self.alu.temp = self.registers.reg_c,
-                        Register::D => self.alu.temp = self.registers.reg_d,
-                        Register::E => self.alu.temp = self.registers.reg_e,
-                        Register::H => self.alu.temp = self.registers.reg_h,
-                        Register::L => self.alu.temp = self.registers.reg_l,
+                        Register::Accum => self.alu.accumulator,
+                        Register::B => self.registers.reg_b,
+                        Register::C => self.registers.reg_c,
+                        Register::D => self.registers.reg_d,
+                        Register::E => self.registers.reg_e,
+                        Register::H => self.registers.reg_h,
+                        Register::L => self.registers.reg_l,
                     }
+                } else { 0 };
+
+                if !MemMov {
+                    self.alu.temp = val;
+                } else if MemDir && MemMov {
+                    ram.write(self.registers.HL() as usize, val);
+                    return false;
                 }
             },
             _ => std::process::exit(1)
@@ -63,23 +70,31 @@ impl Cpu {
 
         // Third subcycle
         match self.decoder.get_type() {
-            InstrType::LSP => self.registers.stack_pointer = (self.registers.reg_h as u16 * 0x100) + self.registers.reg_l as u16,
-            InstrType::MOV{mm, md} => {
-                if !mm {
-                    match self.decoder.get_register(true) {
-                        Register::Accum => self.alu.accumulator = self.alu.temp,
-                        Register::B => self.registers.reg_b = self.alu.temp,
-                        Register::C => self.registers.reg_c = self.alu.temp,
-                        Register::D => self.registers.reg_d = self.alu.temp,
-                        Register::E => self.registers.reg_e = self.alu.temp,
-                        Register::H => self.registers.reg_h = self.alu.temp,
-                        Register::L => self.registers.reg_l = self.alu.temp,
-                    }
+            InstrType::LSP => {
+                self.registers.stack_pointer = self.registers.HL();
+                return false;
+            },
+            InstrType::MOV {MemMov, MemDir} => {
+                let val = if !MemMov {
+                    self.alu.temp
+                } else if MemMov && !MemDir {
+                    ram.read(self.registers.HL() as usize)
+                } else { 0 };
+
+                match self.decoder.get_register(true) {
+                    Register::Accum => self.alu.accumulator = val,
+                    Register::B => self.registers.reg_b = val,
+                    Register::C => self.registers.reg_c = val,
+                    Register::D => self.registers.reg_d = val,
+                    Register::E => self.registers.reg_e = val,
+                    Register::H => self.registers.reg_h = val,
+                    Register::L => self.registers.reg_l = val,
                 }
+                return false;
             }
             _ => std::process::exit(1)
         }
-
+        unreachable!();
         true
     }
 
@@ -142,6 +157,8 @@ impl InstrDecoder {
             0x24 => InstrType::LPC,
             0x00..=0x06 => InstrType::MIV,
             0x40..=0x46 | 0x48..=0x4E | 0x50..=0x56 | 0x58..=0x5E | 0x60..=0x66 | 0x68..=0x6E | 0x70..=0x76 => InstrType::MOV{MemMov: false, MemDir:false},
+            0x47 | 0x4F | 0x57 | 0x5F | 0x67 | 0x6F | 0x77 => InstrType::MOV {MemMov: true, MemDir: true},
+            0x78 | 0x79 | 0x7A | 0x7B | 0x7C | 0x7D | 0x7E => InstrType::MOV {MemMov: true, MemDir: false},
             _ => std::process::exit(1)
         }
     }
@@ -238,5 +255,9 @@ impl Registers {
         self.reg_l = 0;
         self.stack_pointer = 0;
         self.program_counter = 0;
+    }
+
+    pub fn HL(&self) -> u16 {
+        (self.reg_h as u16 * 0x100) + self.reg_l as u16 
     }
 }
