@@ -1,81 +1,36 @@
-DDD or SSS
-A   000
-B   001
-C   010
-D   011
+Registers:		Flags:
+A   000			Z   00
+B   001			S   01
+C   010			P   10
+D   011			C   11
 E   100
 H   101
 L   110
 
-CC 
-ZERO   00
-SIGN   01
-PARITY 10
-CARRY  11
 
+HLT	11 111 111	HLT
 
-Mrr       01 SSS DDD    Copy value from REG(S) to REG(D)                reg1 = reg2
-MMr       01 SSS 111    Load value from MEM[H,L] to REG(D)              reg  = [HL]
-MrM       01 111 DDD    Store value at MEM[H,L] from REG(S)             [HL] = reg
-MIr       00 SSS 111    Load immediate value to REG(S)                  reg  = imm8
+Mrr	01 SSS DDD	R2 = R1
+MrM	01 SSS 111	[HL] = R
+MMr	01 111 DDD	R = [HL]
+MIr	00 000 DDD	R = [PC+1]
 
-MSP       00 111 101							                        SP   = HL
-SPr       00 SSS 110    Store value of REG(S) at MEM[SP]                [SP] = reg
-rSP       11 110 DDD    Load value to REG(D) from MEM[SP]               reg  = [SP]
+LSP	00 111 111	SP = HL
+MrS	00 SSS 111	[SP++] = R
+MSr	00 111 DDD	R = [--SP]
 
-ADr       10 SSS 000    Add REG(S) to REG[A]                            acum = acum + reg
-ACr       10 SSS 001    Add with FLAG[C] REG(S) to REG[A]               acum = acum + reg + c
-SUr       10 SSS 010    Substract REG(S) from REG[A]                    acum = acum - reg
-SBr       10 SSS 011    Substract REG(S) from REG[A] with FLAG[C]       acum = acum - reg - c
-INr       10 SSS 100    Increment REG(S)                                acum = reg + 1
-DCr       10 SSS 101    Decrement REG(S)                                acum = reg - 1
-CPr       10 SSS 110    Compare REG(S) with REG[A]                      c,z,p,s = acum - reg 
+JMP	00 100 100	PC = HL
+JSf	11 CC1 100	if F == 1 then PC = HL else NOP
+JRf	11 CC0 100	if F == 0 then PC = HL  else NOP
 
-ANr       00 SSS 001    And REG(S) with REG[A]                          acum = acum & reg
-ORr       00 SSS 010    Or REG(S) with REG[A]                           acum = acum v reg
-XRr       00 SSS 011    Xor REG(S) with REG[A]                          acum = acum ^ reg
-NTr       00 SSS 100    Not REG(S)                                      acum ~= reg
+ADr	10 SSS 000	A = A + R
+ACr	10 SSS 001	A = A + R + Cf
+SUr	10 SSS 010	A = A - R
+SBr	10 SSS 011	A = A - R - Cf
+CPr	10 SSS 100	A - R
 
-JMP       11 001 111    Jump unconditionaly                             PC   = HL
-JMf       11 000 0CC    Jump if FLAG(f) is SET                          PC   = HL if flag == 1 else NOP
-JNf       11 000 1CC    Jump if FLAG(f) is RESET                        PC   = HL if flag == 0 else NOP
-
-INP       11 100 000    Read value from BUS to REG[A]           ?       acum = PORT[HL]
-OUT       11 100 111    Write value to BUS from REG[a]          ?       PORT[HL] = acum
-
-HLT       11 111 111    Halt proccessor                                 
-
-
-Updated instruction set:
-
-HLT	11 111 111
-
-Mrr	01 SSS DDD
-MMr	01 111 DDD
-MrM	01 SSS 111
-MIr	00 000 DDD
-
-LSP	00 111 111
-MrS	00 SSS 111
-MSr	00 111 DDD
-
-INP	00 001 001
-OUT	00 001 000
-
-JMP	00 100 100
-JSf	11 CC1 100
-JRf	11 CC0 100
-
-ADr	10 SSS 000
-ACr	10 SSS 001
-SUr	10 SSS 010
-SBr	10 SSS 011
-INr	10 SSS 100
-DCr	10 SSS 101
-CPr	10 SSS 110
-
-ANr	11 SSS 000
-ORr	11 SSS 001
-XRr	11 SSS 010
-NTr	11 SSS 011
+ANr	11 SSS 000	A = A & R
+ORr	11 SSS 001	A = A | R
+XRr	11 SSS 010	A = A ^ R
+NTr	11 SSS 011	A = ~R
 
