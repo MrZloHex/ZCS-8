@@ -65,6 +65,21 @@ impl Cpu {
                     return false;
                 }
             },
+            InstrType::PUSH{Push} => {
+                if Push {
+                    match self.decoder.get_register(false) {
+                        Register::Accum => ram.write(self.registers.stack_pointer as usize, self.alu.accumulator),
+                        Register::B => ram.write(self.registers.stack_pointer as usize, self.registers.reg_b),
+                        Register::C => ram.write(self.registers.stack_pointer as usize, self.registers.reg_c),
+                        Register::D => ram.write(self.registers.stack_pointer as usize, self.registers.reg_d),
+                        Register::E => ram.write(self.registers.stack_pointer as usize, self.registers.reg_e),
+                        Register::H => ram.write(self.registers.stack_pointer as usize, self.registers.reg_h),
+                        Register::L => ram.write(self.registers.stack_pointer as usize, self.registers.reg_l),
+                    }
+                } else {
+                    self.registers.stack_pointer += 1;
+                }
+            },
             _ => std::process::exit(1)
         }
 
@@ -91,7 +106,23 @@ impl Cpu {
                     Register::L => self.registers.reg_l = val,
                 }
                 return false;
-            }
+            },
+            InstrType::PUSH{Push} => {
+                if Push {
+                    self.registers.stack_pointer -= 1;
+                } else {
+                    match self.decoder.get_register(true) {
+                        Register::Accum => self.alu.accumulator = ram.read(self.registers.stack_pointer as usize),
+                        Register::B => self.registers.reg_b = ram.read(self.registers.stack_pointer as usize),
+                        Register::C => self.registers.reg_c = ram.read(self.registers.stack_pointer as usize),
+                        Register::D => self.registers.reg_d = ram.read(self.registers.stack_pointer as usize),
+                        Register::E => self.registers.reg_e = ram.read(self.registers.stack_pointer as usize),
+                        Register::H => self.registers.reg_h = ram.read(self.registers.stack_pointer as usize),
+                        Register::L => self.registers.reg_l = ram.read(self.registers.stack_pointer as usize),
+                    }
+                }
+                return false;
+            },
             _ => std::process::exit(1)
         }
         unreachable!();
@@ -116,7 +147,7 @@ enum InstrType {
     MOV { MemMov: bool, MemDir: bool },
     MIV,
     LSP,
-    PUSH { Pop: bool },
+    PUSH { Push: bool },
     LPC,
     JS,
     JR,
@@ -159,6 +190,8 @@ impl InstrDecoder {
             0x40..=0x46 | 0x48..=0x4E | 0x50..=0x56 | 0x58..=0x5E | 0x60..=0x66 | 0x68..=0x6E | 0x70..=0x76 => InstrType::MOV{MemMov: false, MemDir:false},
             0x47 | 0x4F | 0x57 | 0x5F | 0x67 | 0x6F | 0x77 => InstrType::MOV {MemMov: true, MemDir: true},
             0x78 | 0x79 | 0x7A | 0x7B | 0x7C | 0x7D | 0x7E => InstrType::MOV {MemMov: true, MemDir: false},
+            0x07 | 0x0F | 0x17 | 0x1F | 0x27 | 0x2f | 0x37 => InstrType::PUSH { Push: true },
+            0x38 | 0x39 | 0x3A | 0x3B | 0x3C | 0x3D | 0x3E => InstrType::PUSH { Push: false },
             _ => std::process::exit(1)
         }
     }
