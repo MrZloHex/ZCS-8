@@ -25,10 +25,10 @@ impl Cpu {
         let opcode = rom.read(self.registers.program_counter as usize);
         self.decoder.load_opcode(opcode);
         self.registers.program_counter += 1;
-        println!("OPCODE: {:>0w$X}\tINSTR: {:?}", opcode, self.decoder.get_type(), w=2);
+        println!("OPCODE: {:>0w$X}\tINSTR: {:?}", opcode, self.decoder.get_type(&mut self.alu), w=2);
 
         // Second subcycle
-        match self.decoder.get_type() {
+        match self.decoder.get_type(&mut self.alu) {
             InstrType::HLT => return true,
             InstrType::MIV => {
                 let byte = rom.read(self.registers.program_counter as usize);
@@ -80,11 +80,50 @@ impl Cpu {
                     self.registers.stack_pointer += 1;
                 }
             },
-            _ => std::process::exit(1)
+            InstrType::LPC => {
+                self.registers.program_counter = self.registers.HL();
+                return false;
+            },
+            InstrType::JS => {
+                let flag = match self.decoder.get_flag() {
+                    Flag::Zero => self.alu.flags.zero,
+                    Flag::Sign => self.alu.flags.sign,
+                    Flag::Parity => self.alu.flags.parity,
+                    Flag::Carry => self.alu.flags.carry
+                };
+                if flag {
+                    self.registers.program_counter = self.registers.HL();
+                }
+                return false;
+            },
+            InstrType::JR => {
+                let flag = match self.decoder.get_flag() {
+                    Flag::Zero => self.alu.flags.zero,
+                    Flag::Sign => self.alu.flags.sign,
+                    Flag::Parity => self.alu.flags.parity,
+                    Flag::Carry => self.alu.flags.carry
+                };
+                if !flag {
+                    self.registers.program_counter = self.registers.HL();
+                }
+                return false;
+            },
+            InstrType::ALUOP{CMP} => {
+                match self.decoder.get_register(false) {
+                    Register::Accum => self.alu.temp = self.alu.accumulator,
+                    Register::B => self.alu.temp = self.registers.reg_b,
+                    Register::C => self.alu.temp = self.registers.reg_c,
+                    Register::D => self.alu.temp = self.registers.reg_d,
+                    Register::E => self.alu.temp = self.registers.reg_e,
+                    Register::H => self.alu.temp = self.registers.reg_h,
+                    Register::L => self.alu.temp = self.registers.reg_l,
+                }
+            },
+            _ => std::process::exit(12)
         }
 
         // Third subcycle
-        match self.decoder.get_type() {
+        match self.decoder.get_type(&mut self.alu) {
             InstrType::LSP => {
                 self.registers.stack_pointer = self.registers.HL();
                 return false;
@@ -123,7 +162,15 @@ impl Cpu {
                 }
                 return false;
             },
-            _ => std::process::exit(1)
+            InstrType::ALUOP{CMP} => {
+                if CMP {
+                    self.alu.calculate();
+                } else {
+                    self.alu.accumulator = self.alu.calculate();
+                }
+                return false;
+            },
+            _ => std::process::exit(13)
         }
         unreachable!();
         true
@@ -165,6 +212,13 @@ enum Register {
     L
 }
 
+enum Flag {
+    Zero,
+    Sign,
+    Parity,
+    Carry
+}
+
 struct InstrDecoder {
     reg_instruction: u8,
     // decoder
@@ -181,7 +235,7 @@ impl InstrDecoder {
         self.reg_instruction = opcode;
     }
 
-    pub fn get_type(&self) -> InstrType {
+    pub fn get_type(&self, alu: &mut Alu) -> InstrType {
         match self.reg_instruction {
             0xFF => InstrType::HLT,
             0x3F => InstrType::LSP,
@@ -192,7 +246,33 @@ impl InstrDecoder {
             0x78 | 0x79 | 0x7A | 0x7B | 0x7C | 0x7D | 0x7E => InstrType::MOV {MemMov: true, MemDir: false},
             0x07 | 0x0F | 0x17 | 0x1F | 0x27 | 0x2f | 0x37 => InstrType::PUSH { Push: true },
             0x38 | 0x39 | 0x3A | 0x3B | 0x3C | 0x3D | 0x3E => InstrType::PUSH { Push: false },
-            _ => std::process::exit(1)
+            0xCC | 0xDC | 0xEC | 0xFC => InstrType::JS,
+            0xC4 | 0xD4 | 0xE4 | 0xF4 => InstrType::JR,
+            _ => {
+                if (self.reg_instruction >> 6) == 2 {
+                    match self.get_register(true) {
+                        Register::Accum => alu.set_op(Operation::ADD),
+                        Register::B => alu.set_op(Operation::ADDC),
+                        Register::C => alu.set_op(Operation::SUB),
+                        Register::D => alu.set_op(Operation::SUBB),
+                        Register::E => alu.set_op(Operation::SUB),
+                        _ => unreachable!()
+                    }
+                    let cmp = (self.reg_instruction & 0x7) == 4;
+                    InstrType::ALUOP { CMP: cmp }
+                } else if (self.reg_instruction & 0xC0 == 0xC0) && (self.reg_instruction & 0x7 != 4){
+                    match self.get_register(true) {
+                        Register::Accum => alu.set_op(Operation::AND),
+                        Register::B => alu.set_op(Operation::OR),
+                        Register::C => alu.set_op(Operation::XOR),
+                        Register::D => alu.set_op(Operation::NOT),
+                        _ => unreachable!()
+                    }
+                    InstrType::ALUOP { CMP: false }
+                } else {
+                    unreachable!()
+                }
+            },
         }
     }
 
@@ -213,12 +293,36 @@ impl InstrDecoder {
             _ => std::process::exit(1)
         }
     }
+
+    pub fn get_flag(&self) -> Flag {
+        let code = (self.reg_instruction << 2) >> 6;
+        match code {
+            0 => Flag::Zero,
+            1 => Flag::Sign,
+            2 => Flag::Parity,
+            3 => Flag::Carry,
+            _ => std::process::exit(1)
+        }
+    }
+}
+
+enum Operation {
+    ADD,
+    ADDC,
+    SUB,
+    SUBB,
+    AND,
+    OR,
+    XOR,
+    NOT,
+    NOP
 }
 
 struct Alu {
     pub accumulator: u8,
     pub temp: u8,
-    pub flags: Flags
+    pub flags: Flags,
+    op: Operation
 }
 
 impl Alu {
@@ -231,7 +335,8 @@ impl Alu {
                 carry: false,
                 sign: false,
                 parity: false
-            }
+            },
+            op: Operation::NOP
         }
     }
 
@@ -242,6 +347,37 @@ impl Alu {
         self.flags.carry = false;
         self.flags.sign = false;
         self.flags.parity = false;
+        self.op = Operation::NOP;
+    }
+
+    pub fn set_op(&mut self, op: Operation) {
+        self.op = op;
+    }
+
+    pub fn calculate(&mut self) -> u8 {
+        let val: i16 = match self.op {
+            Operation::ADD => self.accumulator as i16 + self.temp as i16,
+            Operation::ADDC => {
+                let c: i16 = if self.flags.carry { 1 } else { 0 };
+                self.accumulator as i16 + self.temp as i16 + c
+            },
+            Operation::SUB => self.accumulator as i16 - self.temp as i16,
+            Operation::SUBB => {
+                let c: i16 = if self.flags.carry { 1 } else { 0 };
+                self.accumulator as i16 - self.temp as i16 - c
+            },
+            Operation::AND => (self.accumulator & self.temp) as i16,
+            Operation::OR => (self.accumulator | self.temp) as i16,
+            Operation::XOR => (self.accumulator ^ self.temp) as i16,
+            Operation::NOT => (!self.temp) as i16,
+            Operation::NOP => unreachable!("NOP")
+        };
+        // println!("ALU: {}", val);
+        self.flags.zero = val == 0;
+        self.flags.parity = (val & 1) == 0;
+        self.flags.sign = (val & 128) == 1;
+        self.flags.carry = (val < 0) || (val > 255);
+        val as u8
     }
 }
 
