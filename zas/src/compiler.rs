@@ -18,27 +18,46 @@ impl Compiler {
         }
     }
 
-    pub fn compile(&mut self) {
+    pub fn compile(&mut self, verbosity: bool) {
+        if verbosity { println!("{}:\t{}\t{}\t{}", "INFO".cyan(), "INSTR".bright_white().bold(), "OPCODE".bright_white().bold(), "IMM".bright_white().bold()) }
         while self.line < self.data.len() {
             let line = self.data[self.line].clone();
+            let mut tokens: Vec<&str> = Vec::new();
             let instr = if line.contains(' ') {
-                line.splitn(2, ' ').collect::<Vec<&str>>()[0]
+                tokens = line.split_whitespace().collect();
+                tokens[0]
             } else {
                 line.as_str()
             };
-            print!("INSTR {} OPCODE ", instr);
 
             let (op_data, sec_byte) = self.dict.get_opcode(instr);
             let op = match op_data {
                 Some(op) => *op,
                 None => {
-                    eprintln!("{}: no such instruction {} at line {}", "ERROR".bright_red(), instr.bold(), self.line);
+                    eprintln!("{}: no such instruction {} at line {}", "ERROR".bright_red(), instr.bold(), self.line+1);
                     std::process::exit(1);
                 }
             };
-            println!("{:X}", op);
-            if sec_byte
+            if sec_byte {
+                let imm: u8 = match u8::from_str_radix(tokens[1], 16) {
+                    Ok(val) => val,
+                    Err(_) => {
+                        eprintln!("{}: incorrect immediate value {} at line {}", "ERROR".bright_red(), tokens[1].bold(), self.line+1);
+                        std::process::exit(2);
+                    }
+                };
+                if verbosity {
+                    println!("\t{}\t{:>0w$X}\t{:>0w$X}", tokens[0], op, imm, w=2);
+                }
 
+                self.binary.push(op);
+                self.binary.push(imm);
+            } else
+                if verbosity {
+                    println!("\t{}\t{:>0w$X}", line, op, w=2);
+                } {
+                self.binary.push(op);
+            }
 
             self.line += 1;
         }
