@@ -1,0 +1,6 @@
+[submodule "emuZCS"]
+	path = emuZCS
+	url = https://github.com/MrZloHex/emuZCS.git
+[submodule "zas"]
+	path = zas
+	url = git@github.com:MrZloHex/zas.git
