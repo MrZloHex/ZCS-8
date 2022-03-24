@@ -10,7 +10,7 @@ impl Dictionary<'_> {
         
         opcodes.insert("HLT", 0xFF);
         opcodes.insert("LSP", 0x3F);
-        opcodes.insert("LPC", 0x24);
+        opcodes.insert("JMP", 0x24);
 
         opcodes.insert("MIA", 0x00);
         opcodes.insert("MIB", 0x01);

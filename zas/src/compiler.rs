@@ -21,7 +21,18 @@ impl Compiler {
     pub fn compile(&mut self, verbosity: bool) {
         if verbosity { println!("{}:\t{}\t{}\t{}", "INFO".cyan(), "INSTR".bright_white().bold(), "OPCODE".bright_white().bold(), "IMM".bright_white().bold()) }
         while self.line < self.data.len() {
-            let line = self.data[self.line].clone();
+            let mut line = self.data[self.line].clone();
+            self.line += 1;
+
+            if line.is_empty() { continue; }
+
+            while !correct_first_char(line.chars().next().unwrap()) {
+                line.remove(0);
+            }
+
+            if line.chars().next().unwrap() == ';' { continue; }
+            println!("LINE: `{}`", line);
+
             let mut tokens: Vec<&str> = Vec::new();
             let instr = if line.contains(' ') {
                 tokens = line.split_whitespace().collect();
@@ -59,11 +70,20 @@ impl Compiler {
                 self.binary.push(op);
             }
 
-            self.line += 1;
         }
     }
 
     pub fn get_binary(&self) -> Vec<u8> {
         self.binary.clone()
+    }
+}
+
+fn correct_first_char(ch: char) -> bool {
+    match ch {
+        ';' => true,
+        'A'..='Z' => true,
+        'a'..='z' => true,
+        '_' => true,
+        _ => false
     }
 }
