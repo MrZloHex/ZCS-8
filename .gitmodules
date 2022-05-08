@@ -4,3 +4,6 @@
 [submodule "zas"]
 	path = zas
 	url = git@github.com:MrZloHex/zas.git
+[submodule "ZOS"]
+	path = ZOS
+	url = git@github.com:MrZloHex/ZOS.git
