@@ -1,0 +1,13 @@
+SECTION TEXT
+
+	MIH 0xEF
+	MIL 0xFF
+	LSP
+	
+	MIA 0x69
+	PUA
+	MIB 0x42
+	POB
+HLT
+
+END

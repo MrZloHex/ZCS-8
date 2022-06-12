@@ -1,4 +1,37 @@
 Registers:
-74LS273 - 8-bit register with clear
+74LS273 - 8-bit register with clear !!! Doesn't have WE pin
 74LS245 - Octal bus transivier
- 
+
+74AS825 - IDEAL 
+
+74LS380 - 8 bit multifunctional register !!! See price on it
+
+74x2825  - ??? 8 bit register + CLR + WE
+
+74LS173 - 4 bit register with clear and enable (for flags)
+
+Multiplexers:
+
+74LS151 - 8 to 1 multiplexer
+74LS138 - 3 to 8 demultiplexer
+
+ALU:
+
+74LS181 - 4-bit ALU
+73LS(2)83 - 4-bit adder
+
+FLIP-FLOP:
+
+74LS171 - D ff with clear
+74LS74  - D ff with preset and clear
+
+Logic:
+
+74LS30 - Single NAND 8 input (for flags) 1p
+74LS04 - Hex NOT 1 input 4p
+74LS08 - Quad AND 2 input 3p
+74LS32 - Quad OR 2 input 2p
+74LS02 - Quad NOR 2 input 
+74LS86 - Quad XOR 2 input
+
+74LS244 - Octal 3-state buffer
